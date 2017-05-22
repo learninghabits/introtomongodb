@@ -31,17 +31,16 @@ app.get('/api/migrate', function (request, response) {
 			var collection = db.collection('topicsCollection');
 			//inserting all documents to the collection
 			collection.insertMany(topics, function (error, result) {
+				db.close();
 				if (error) {
-					console.log(error);
-					db.close();
+					console.log(error);				
 					response.status(500).send(error.message);
 					return;
 				}
 				callback(result);
 			});
 		};
-		var onMigrateCompleted = function (result) {
-			db.close();
+		var onMigrateCompleted = function (result) {			
 			response.status(200).send('Number of records inserted is : '
 				+ result.insertedCount);
 		};
@@ -58,10 +57,10 @@ app.get('/api/clean', function (request, response) {
 			response.status(500).send('Internal server : could not connect to database');
 			return;
 		}
-		var deleteAllData = function (db, callback) {
-			var topics = require('./topics.json');
+		var deleteAllData = function (db, callback) {			
 			var collection = db.collection('topicsCollection');
 			collection.deleteMany({}, function (error, result) {
+				db.close();
 				if (error) {
 					console.log(error);
 					response.status(500).send('Internal server : failed to delete data');
@@ -70,8 +69,7 @@ app.get('/api/clean', function (request, response) {
 				callback(result);
 			});
 		};
-		var onDeleteAllDataCompleted = function (result) {
-			db.close();
+		var onDeleteAllDataCompleted = function (result) {			
 			response.status(200).send('Number of records deleted is : ' + result.deletedCount);
 		};
 
@@ -91,17 +89,16 @@ app.get('/api/topics', function (request, response) {
 			var collection = db.collection('topicsCollection');
 			//get all topics
 			collection.find({}).toArray(function (error, topics) {
+				db.close();
 				if (error) {
-					console.log(error);
-					db.close();
+					console.log(error);					
 					response.status(500).send(error.message);
 					return;
 				}
 				callback(topics);
 			});
 		};
-		var onGetAllTopicsCompleted = function (topics) {
-			db.close();
+		var onGetAllTopicsCompleted = function (topics) {			
 			response.status(200)
 				.send(topics.map(function (topic) {
 					return {
@@ -136,6 +133,7 @@ app.get('/api/topic/:id', function (request, response) {
 			//note an alternative syntaxt using query operators
 			//collection.findOne({_id : { $eq : id }}
 			collection.findOne({ _id: id }, function (error, topic) {
+				db.close();
 				if (error) {
 					console.log(error);
 					response.status(500).send(error.message);
@@ -144,8 +142,7 @@ app.get('/api/topic/:id', function (request, response) {
 				callback(topic);
 			});
 		};
-		var onGetTopicCompleted = function (topic) {
-			db.close();
+		var onGetTopicCompleted = function (topic) {		
 			response.status(200)
 				.send(topic);
 		};
@@ -172,6 +169,7 @@ app.get('/api/topic/:id/:name', function (request, response) {
 			var collection = db.collection('topicsCollection');
 			//get a topic passing the id parameter and a name parameter
 			collection.findOne({ _id: id }, { tutorials: { $elemMatch: { name: name } } }, function (error, topic) {
+				db.close();
 				if (error) {
 					console.log(error);
 					response.status(500).send(error.message);
@@ -180,8 +178,7 @@ app.get('/api/topic/:id/:name', function (request, response) {
 				callback(topic);
 			});
 		};
-		var onGetTopicCompleted = function (topic) {
-			db.close();
+		var onGetTopicCompleted = function (topic) {			
 			response.status(200)
 				.send(topic);
 		};
@@ -215,9 +212,9 @@ app.post('/api/topic', function (request, response) {
 				topic.id = topic._id = autoIndex; 
 				//insert the document
 				collection.insert(topic, function (error, result) {
+					db.close();
 					if (error) {
-						console.log(error);
-						db.close();
+						console.log(error);						
 						response.status(500).send(error.message);
 						return;
 					}
@@ -225,8 +222,7 @@ app.post('/api/topic', function (request, response) {
 				});
 			});
 		};
-		var onInsertDocumentCompleted = function (result) {
-			db.close();
+		var onInsertDocumentCompleted = function (result) {			
 			response.status(200).send({
 				id: topic.id,
 				url: request.protocol + '://' + request.get('host') + '/api/topic/' + topic.id
