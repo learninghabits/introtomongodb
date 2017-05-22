@@ -24,9 +24,9 @@ app.get('/api/migrate', function (request, response) {
 			//reading data off the json file
 			var topics = require('./topics.json');
 			//making a mongodb id (_id) matach our id property
-			// for (var i = 0; i < topics.length; i++) {
-			// 	topics[i]._id = topics[i].id;
-			// }
+			 for (var i = 0; i < topics.length; i++) {
+			 	topics[i]._id = topics[i].id;
+			 }
 			//getting a colletion
 			var collection = db.collection('topicsCollection');
 			//inserting all documents to the collection
